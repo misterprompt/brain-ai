@@ -1,12 +1,19 @@
-# 🧠 THE BRAIN - Documentation Centrale
+# 🧠 The Brain - Documentation & Architecture
 
-> Plateforme IA Universelle avec 200+ APIs
-
-**Dernière mise à jour** : 19 Décembre 2025
+> **🚨 SÉCURITÉ CRITIQUE - LIRE IMPÉRATIVEMENT**
+> 
+> 1. **AUCUNE CLÉ API** ou mot de passe ne doit jamais être commité sur GitHub.
+> 2. Les fichiers `.env` et `.env.secrets` sont strictement **interdits** dans le contrôle de version.
+> 3. Pour la production (Fly.io), utilisez **UNIQUEMENT** : `fly secrets set KEY=VALUE`.
+> 4. En local, utilisez des fichiers `.env` qui sont **ignorés** par le `.gitignore`.
+> 
+> **En cas de fuite :** Révoquer immédiatement la clé concernée sur la console du provider (Google Cloud, OpenAI, etc.).
 
 ---
 
-## 📁 Repositories GitHub
+Ce document centralise toutes les informations sur "The Brain", le mono-repo regroupant tous les projets IA de MisterPrompt.
+
+## 📂 Structure du Projet (Mono-repo)
 
 | Projet | Description | URL |
 |--------|-------------|-----|
