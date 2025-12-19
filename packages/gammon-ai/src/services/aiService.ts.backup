@@ -1,0 +1,217 @@
+/**
+ * AI Service for Backgammon
+ * Provides intelligent move suggestions and automated gameplay
+ */
+
+interface GameState {
+  id: string;
+  whitePlayer?: any;
+  blackPlayer?: any;
+  boardState: number[];
+  currentPlayer: string;
+  dice: number[];
+  usedDice: number[];
+  whiteScore: number;
+  blackScore: number;
+  status: string;
+  gameMode: string;
+  winner?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Move {
+  from: number;
+  to: number;
+  player: string;
+}
+
+interface AIMove {
+  from: number;
+  to: number;
+  reasoning: string;
+  confidence: number;
+}
+
+export class AIService {
+  /**
+   * Get the best move for the AI player
+   */
+  static getBestMove(gameState: GameState): AIMove | null {
+    const availableMoves = this.getAllPossibleMoves(gameState);
+
+    if (availableMoves.length === 0) {
+      return null;
+    }
+
+    // For now, select a random move (can be improved with heuristics later)
+    const randomIndex = Math.floor(Math.random() * availableMoves.length);
+    const selectedMove = availableMoves[randomIndex];
+
+    if (!selectedMove) {
+      return null;
+    }
+
+    return {
+      from: selectedMove.from,
+      to: selectedMove.to,
+      reasoning: 'Random legal move',
+      confidence: 0.5
+    };
+  }
+
+  /**
+   * Get all possible legal moves for the current player
+   */
+  private static getAllPossibleMoves(gameState: GameState): Move[] {
+    const moves: Move[] = [];
+    const player = gameState.currentPlayer;
+
+    // If no dice rolled, no moves available
+    if (gameState.dice.length === 0) return moves;
+
+    const availableDice = gameState.dice.filter(die => !gameState.usedDice.includes(die));
+
+    // Check all points for possible moves
+    for (let from = 0; from <= 24; from++) {
+      if (this.getPiecesOnPoint(gameState, from, player) > 0) {
+        for (const die of availableDice) {
+          const to = player === 'WHITE' ? from + die : from - die;
+
+          // Check normal move
+          if (to >= 1 && to <= 24) {
+            const move: Move = { from, to, player };
+            if (this.isValidMove(gameState, move)) {
+              moves.push(move);
+            }
+          }
+
+          // Check bearing off
+          const bearingOffPoint = player === 'WHITE' ? 25 : 0;
+          if (this.canBearOff(gameState, player) && to === bearingOffPoint) {
+            const bearingOffMove: Move = { from, to: bearingOffPoint, player };
+            if (this.isValidBearingOff(gameState, from, to, player)) {
+              moves.push(bearingOffMove);
+            }
+          }
+        }
+      }
+    }
+
+    return moves;
+  }
+
+  /**
+   * Check if a move is valid
+   */
+  private static isValidMove(gameState: GameState, move: Move): boolean {
+    const { from, to, player } = move;
+
+    // Check if source point has player's pieces
+    const sourcePieces = this.getPiecesOnPoint(gameState, from, player);
+    if (sourcePieces === 0) return false;
+
+    // Check move direction
+    if (!this.isValidMoveDirection(from, to, player)) return false;
+
+    // Check if destination has opponent's pieces
+    const opponentPieces = this.getOpponentPiecesOnPoint(gameState, to, player);
+    if (opponentPieces > 1) return false;
+
+    // Check dice availability
+    const diceValue = Math.abs(to - from);
+    return gameState.dice.includes(diceValue) && !gameState.usedDice.includes(diceValue);
+  }
+
+  /**
+   * Check if bearing off is valid
+   */
+  private static isValidBearingOff(gameState: GameState, from: number, to: number, player: string): boolean {
+    if (!this.canBearOff(gameState, player)) return false;
+
+    const diceValue = Math.abs(to - from);
+
+    if (player === 'WHITE') {
+      if (from < 19) return false;
+      const exactDiceAvailable = gameState.dice.includes(from - 24);
+      if (exactDiceAvailable && diceValue !== from - 24) return false;
+      return diceValue >= (25 - from);
+    } else {
+      if (from > 6) return false;
+      const exactDiceAvailable = gameState.dice.includes(from);
+      if (exactDiceAvailable && diceValue !== from) return false;
+      return diceValue >= from;
+    }
+  }
+
+  /**
+   * Check if player can bear off pieces
+   */
+  private static canBearOff(gameState: GameState, player: string): boolean {
+    const homeStart = player === 'WHITE' ? 19 : 1;
+    const homeEnd = player === 'WHITE' ? 24 : 6;
+
+    for (let point = 1; point <= 24; point++) {
+      const pieces = this.getPiecesOnPoint(gameState, point, player);
+      if (pieces > 0 && (point < homeStart || point > homeEnd)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Get pieces on a point for a specific player
+   */
+  private static getPiecesOnPoint(gameState: GameState, point: number, player: string): number {
+    if (point === 0) { // Bar
+      return player === 'WHITE' ? (gameState.boardState[0] || 0) : (gameState.boardState[1] || 0);
+    }
+
+    const index = (point - 1) * 2 + (player === 'WHITE' ? 0 : 1);
+    return gameState.boardState[index] || 0;
+  }
+
+  /**
+   * Get opponent pieces on a point
+   */
+  private static getOpponentPiecesOnPoint(gameState: GameState, point: number, player: string): number {
+    const opponent = player === 'WHITE' ? 'BLACK' : 'WHITE';
+    return this.getPiecesOnPoint(gameState, point, opponent);
+  }
+
+  /**
+   * Check if move direction is valid
+   */
+  private static isValidMoveDirection(from: number, to: number, player: string): boolean {
+    if (player === 'WHITE') {
+      return to > from; // White moves forward (increasing point numbers)
+    } else {
+      return to < from; // Black moves forward (decreasing point numbers)
+    }
+  }
+
+  /**
+   * Get AI difficulty level description
+   */
+  static getDifficultyDescription(difficulty: string): string {
+    switch (difficulty.toLowerCase()) {
+      case 'easy':
+        return 'Makes random legal moves';
+      case 'medium':
+        return 'Considers basic strategy';
+      case 'hard':
+        return 'Uses advanced heuristics';
+      default:
+        return 'Unknown difficulty';
+    }
+  }
+
+  /**
+   * Simulate AI thinking time
+   */
+  static async simulateThinking(delay: number = 1000): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, delay));
+  }
+}

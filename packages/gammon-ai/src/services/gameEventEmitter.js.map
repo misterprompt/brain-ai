@@ -1,0 +1,1 @@
+{"version":3,"file":"gameEventEmitter.js","sourceRoot":"","sources":["gameEventEmitter.ts"],"names":[],"mappings":";;;AAYA,sCAEC;AAdD,mCAAsC;AAGzB,QAAA,gBAAgB,GAAG,IAAI,qBAAY,EAAE,CAAC;AASnD,SAAgB,aAAa,CAAC,MAAc,EAAE,IAAmB,EAAE,OAAgC,EAAE,SAAwB,IAAI;IAC7H,wBAAgB,CAAC,IAAI,CAAC,WAAW,EAAE,EAAE,MAAM,EAAE,IAAI,EAAE,OAAO,EAAE,MAAM,EAAsB,CAAC,CAAC;AAC9F,CAAC"}

@@ -1,0 +1,421 @@
+/* GameBoard Styles - Premium Max UI/UX */
+
+:root {
+    /* Palette Premium */
+    --color-wood-dark: #2d1b18;
+    --color-wood-medium: #4a3028;
+    --color-wood-light: #8d6e63;
+    --color-wood-border: #1a100e;
+
+    --color-felt-dark: #0a2f14;
+    --color-felt-light: #1b5e20;
+
+    --color-gold: #ffd700;
+    --color-brass: #b5a642;
+    --color-silver: #e0e0e0;
+
+    --shadow-depth: 0 20px 50px rgba(0, 0, 0, 0.6);
+    --shadow-inner: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+
+    /* Checker Colors - Ultra Realistic */
+    --checker-white-base: #f0f0f0;
+    --checker-white-rim: #ffffff;
+    --checker-black-base: #1a1a1a;
+    --checker-black-rim: #333333;
+}
+
+.game-board-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* Realistic Table Surface */
+    background-color: #1a1a1a;
+    background-image:
+        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 100%),
+        url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+    padding: var(--spacing-xl);
+    border-radius: 12px;
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.9);
+    min-height: 100vh;
+    justify-content: center;
+}
+
+/* Main board frame - The "Cabinet" */
+.game-board {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+
+    /* Rich Wood Texture */
+    background:
+        linear-gradient(135deg, rgba(74, 48, 40, 0.95), rgba(45, 27, 24, 0.98)),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='wood'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.05 0.005' numOctaves='2' result='noise'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23wood)' opacity='0.1'/%3E%3C/svg%3E");
+
+    padding: var(--board-padding, var(--spacing-xl));
+    border-radius: 24px;
+    border: 16px solid var(--color-wood-border);
+    box-shadow:
+        var(--shadow-depth),
+        inset 0 0 20px rgba(0, 0, 0, 0.8),
+        0 0 0 2px rgba(255, 255, 255, 0.05);
+    /* Subtle highlight edge */
+}
+
+/* Dynamic Lighting Overlay */
+.game-board::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle 800px at var(--light-x, 50%) var(--light-y, 50%),
+            rgba(255, 255, 255, 0.03),
+            transparent 80%);
+    pointer-events: none;
+    border-radius: 8px;
+    z-index: 2;
+}
+
+/* Playing Surface - The "Felt" */
+.board-half {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    background-color: var(--color-felt-dark);
+    background-image:
+        radial-gradient(circle at 50% 50%, var(--color-felt-light) 0%, var(--color-felt-dark) 100%),
+        url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.12'/%3E%3C/svg%3E");
+    border-radius: 8px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+    position: relative;
+    overflow: hidden;
+}
+
+.board-top,
+.board-bottom {
+    height: calc(var(--point-height) + var(--spacing-xl));
+    padding: var(--spacing-sm);
+}
+
+.quadrant {
+    display: flex;
+    flex: 1;
+    gap: 2px;
+    z-index: 1;
+}
+
+/* The Bar - Hinge Area */
+.bar {
+    width: var(--bar-width);
+    background: linear-gradient(90deg, #2d1b18 0%, #3e2723 20%, #2d1b18 50%, #3e2723 80%, #2d1b18 100%);
+    border-left: 2px solid rgba(0, 0, 0, 0.5);
+    border-right: 2px solid rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9);
+    position: relative;
+    z-index: 5;
+}
+
+/* Metallic Hinge */
+.bar::before {
+    content: '';
+    width: 60%;
+    height: 60px;
+    background: linear-gradient(90deg, #8a7338 0%, #d4af37 40%, #f9eeb8 50%, #d4af37 60%, #8a7338 100%);
+    border-radius: 4px;
+    box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.8),
+        inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    opacity: 0.9;
+}
+
+.bar-checkers {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: -8px;
+    z-index: 10;
+    align-items: center;
+    width: 100%;
+}
+
+.bar-checkers-top {
+    top: var(--spacing-md);
+}
+
+.bar-checkers-bottom {
+    bottom: var(--spacing-md);
+}
+
+/* Middle Section - Dice & Cube */
+.board-middle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-2xl);
+    height: 80px;
+    background: transparent;
+    z-index: 10;
+}
+
+/* Off Sections - The "Tray" */
+.off-section {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    background: linear-gradient(145deg, #3e2723, #2d1b18);
+    border: 8px solid #1a100e;
+    border-radius: 16px;
+    min-width: 160px;
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.6),
+        inset 0 2px 10px rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.off-section:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-wood-light);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+}
+
+.off-white {
+    top: var(--spacing-xl);
+    right: -220px;
+}
+
+.off-black {
+    bottom: var(--spacing-xl);
+    right: -220px;
+}
+
+.off-label {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-brass);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(181, 166, 66, 0.3);
+    padding-bottom: 8px;
+    width: 100%;
+    text-align: center;
+}
+
+.off-checkers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    width: 100%;
+    min-height: 80px;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Current Player Indicator */
+.current-player-indicator {
+    position: absolute;
+    left: -220px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: 20px;
+    background: linear-gradient(135deg, #2d1b18 0%, #1a100e 100%);
+    border: 2px solid var(--color-brass);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    min-width: 160px;
+}
+
+.indicator-text {
+    font-family: 'Cinzel', serif;
+    color: var(--color-silver);
+    font-size: 1.1rem;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.indicator-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.indicator-dot.white {
+    background: #f0f0f0;
+    border: 2px solid #fff;
+}
+
+.indicator-dot.black {
+    background: #1a1a1a;
+    border: 2px solid #444;
+}
+
+/* CHECKER STYLES - The Crown Jewel */
+.checker {
+    width: var(--checker-size);
+    height: var(--checker-size);
+    border-radius: 50%;
+    position: relative;
+    cursor: grab;
+    z-index: 10;
+    /* Hardware acceleration for smooth animation */
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+.checker:active {
+    cursor: grabbing;
+    z-index: 100;
+}
+
+/* 3D Body */
+.checker::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow:
+        /* Deep shadow for height */
+        0 6px 8px rgba(0, 0, 0, 0.5),
+        /* Ambient occlusion */
+        0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Inner Detail - The "Dish" */
+.checker::before {
+    content: '';
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%);
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.4),
+        0 1px 1px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* White Checker - Marble/Acrylic Look */
+.checker-white {
+    background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e0e0e0 40%, #bdbdbd 100%);
+    border: 1px solid #a0a0a0;
+}
+
+.checker-white::after {
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8),
+        /* Rim highlight */
+        inset 0 -4px 8px rgba(0, 0, 0, 0.2),
+        /* Bottom shade */
+        0 6px 10px rgba(0, 0, 0, 0.4);
+    /* Drop shadow */
+}
+
+/* Black Checker - Obsidian/Onyx Look */
+.checker-black {
+    background: radial-gradient(circle at 35% 35%, #555555 0%, #1a1a1a 50%, #000000 100%);
+    border: 1px solid #000000;
+}
+
+.checker-black::after {
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+        /* Subtle rim */
+        inset 0 -4px 8px rgba(0, 0, 0, 0.8),
+        0 6px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* Selection Glow */
+.checker-selected {
+    box-shadow: 0 0 0 3px var(--color-gold), 0 0 20px var(--color-gold) !important;
+    z-index: 50;
+}
+
+/* Small checker for off-board */
+.checker-small {
+    width: 2rem;
+    height: 2rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1600px) {
+
+    .off-white,
+    .off-black {
+        right: -180px;
+    }
+
+    .current-player-indicator {
+        left: -180px;
+    }
+}
+
+@media (max-width: 1400px) {
+    :root {
+        --checker-size: 2.4rem;
+        --point-width: 3.2rem;
+        --point-height: 10rem;
+    }
+
+    .off-white,
+    .off-black {
+        right: -160px;
+        min-width: 140px;
+    }
+
+    .current-player-indicator {
+        left: -160px;
+        min-width: 140px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .game-board-container {
+        padding: var(--spacing-md);
+        justify-content: flex-start;
+    }
+
+    .off-section {
+        position: static;
+        flex-direction: row;
+        width: 100%;
+        min-width: auto;
+        margin-top: var(--spacing-md);
+        transform: none !important;
+    }
+
+    .off-white,
+    .off-black {
+        right: auto;
+        top: auto;
+        bottom: auto;
+    }
+
+    .current-player-indicator {
+        position: static;
+        width: 100%;
+        flex-direction: row;
+        justify-content: center;
+        margin-top: var(--spacing-md);
+        transform: none;
+    }
+}

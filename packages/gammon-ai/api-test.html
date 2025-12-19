@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GammonGuru API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result {
+            background: #f9f9f9;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #4CAF50;
+            white-space: pre-wrap;
+        }
+        .error {
+            border-left-color: #f44336;
+        }
+        .auth-status {
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎲 GammonGuru API Test</h1>
+    <p>Testing connection to: <strong>https://gammon-guru-api.onrender.com</strong></p>
+
+    <div class="auth-status">
+        <strong>Auth Status:</strong> <span id="authStatus">Not logged in</span>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Health Check -->
+    <div class="test-section">
+        <h3>🩺 Health Check</h3>
+        <button onclick="testHealth()">Test Health</button>
+        <div id="healthResult" class="result"></div>
+    </div>
+
+    <!-- API Info -->
+    <div class="test-section">
+        <h3>📋 API Info</h3>
+        <button onclick="testApiInfo()">Get API Info</button>
+        <div id="apiInfoResult" class="result"></div>
+    </div>
+
+    <!-- Players List -->
+    <div class="test-section">
+        <h3>👥 Players List</h3>
+        <button onclick="testPlayers()">Get Players</button>
+        <div id="playersResult" class="result"></div>
+    </div>
+
+    <!-- Authentication -->
+    <div class="test-section">
+        <h3>🔐 Authentication</h3>
+
+        <h4>Register</h4>
+        <input type="text" id="regName" placeholder="Name" value="TestUser">
+        <input type="email" id="regEmail" placeholder="Email" value="test@example.com">
+        <input type="password" id="regPassword" placeholder="Password" value="password123">
+        <button onclick="testRegister()">Register</button>
+        <div id="registerResult" class="result"></div>
+
+        <h4>Login</h4>
+        <input type="email" id="loginEmail" placeholder="Email" value="test@example.com">
+        <input type="password" id="loginPassword" placeholder="Password" value="password123">
+        <button onclick="testLogin()">Login</button>
+        <div id="loginResult" class="result"></div>
+
+        <h4>Profile</h4>
+        <button onclick="testProfile()">Get Profile</button>
+        <div id="profileResult" class="result"></div>
+    </div>
+
+    <!-- Game Management -->
+    <div class="test-section">
+        <h3>🎮 Game Management</h3>
+
+        <h4>Create Game</h4>
+        <select id="gameMode">
+            <option value="AI_VS_PLAYER">AI vs Player</option>
+            <option value="PLAYER_VS_PLAYER">Player vs Player</option>
+        </select>
+        <button onclick="testCreateGame()">Create Game</button>
+        <div id="createGameResult" class="result"></div>
+
+        <h4>Game Actions</h4>
+        <input type="text" id="gameId" placeholder="Game ID" value="">
+        <button onclick="testGetGameStatus()">Get Game Status</button>
+        <button onclick="testRollDice()">Roll Dice</button>
+        <div id="gameActionResult" class="result"></div>
+
+        <h4>Make Move</h4>
+        <input type="number" id="fromPoint" placeholder="From point" value="1">
+        <input type="number" id="toPoint" placeholder="To point" value="5">
+        <button onclick="testMakeMove()">Make Move</button>
+        <div id="makeMoveResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://gammon-guru-api.onrender.com';
+        let authToken = localStorage.getItem('authToken') || null;
+
+        function updateAuthStatus() {
+            const status = authToken ? 'Logged in' : 'Not logged in';
+            document.getElementById('authStatus').textContent = status;
+        }
+
+        async function makeRequest(endpoint, options = {}) {
+            const url = `${API_BASE}${endpoint}`;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            };
+
+            if (authToken) {
+                config.headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+                return { status: response.status, data };
+            } catch (error) {
+                return { status: 0, data: { error: error.message } };
+            }
+        }
+
+        function displayResult(elementId, result) {
+            const element = document.getElementById(elementId);
+            element.className = 'result';
+            if (result.status >= 200 && result.status < 300) {
+                element.textContent = `✅ Status: ${result.status}\n${JSON.stringify(result.data, null, 2)}`;
+            } else {
+                element.textContent = `❌ Status: ${result.status}\n${JSON.stringify(result.data, null, 2)}`;
+                element.classList.add('error');
+            }
+        }
+
+        // Test functions
+        async function testHealth() {
+            const result = await makeRequest('/health');
+            displayResult('healthResult', result);
+        }
+
+        async function testApiInfo() {
+            const result = await makeRequest('/');
+            displayResult('apiInfoResult', result);
+        }
+
+        async function testPlayers() {
+            const result = await makeRequest('/api/players');
+            displayResult('playersResult', result);
+        }
+
+        async function testRegister() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            const result = await makeRequest('/api/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ name, email, password })
+            });
+
+            if (result.data.success && result.data.data.token) {
+                authToken = result.data.data.token;
+                localStorage.setItem('authToken', authToken);
+                updateAuthStatus();
+            }
+
+            displayResult('registerResult', result);
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const result = await makeRequest('/api/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password })
+            });
+
+            if (result.data.success && result.data.data.token) {
+                authToken = result.data.data.token;
+                localStorage.setItem('authToken', authToken);
+                updateAuthStatus();
+            }
+
+            displayResult('loginResult', result);
+        }
+
+        async function testProfile() {
+            const result = await makeRequest('/api/user/profile');
+            displayResult('profileResult', result);
+        }
+
+        async function testCreateGame() {
+            const gameMode = document.getElementById('gameMode').value;
+            const result = await makeRequest('/api/games', {
+                method: 'POST',
+                body: JSON.stringify({ gameMode, difficulty: 'MEDIUM' })
+            });
+
+            if (result.data.success) {
+                document.getElementById('gameId').value = result.data.data.game.id;
+            }
+
+            displayResult('createGameResult', result);
+        }
+
+        async function testGetGameStatus() {
+            const gameId = document.getElementById('gameId').value;
+            if (!gameId) {
+                displayResult('gameActionResult', { status: 400, data: { error: 'No game ID provided' } });
+                return;
+            }
+
+            const result = await makeRequest(`/api/games/${gameId}`);
+            displayResult('gameActionResult', result);
+        }
+
+        async function testRollDice() {
+            const gameId = document.getElementById('gameId').value;
+            if (!gameId) {
+                displayResult('gameActionResult', { status: 400, data: { error: 'No game ID provided' } });
+                return;
+            }
+
+            const result = await makeRequest(`/api/games/${gameId}/roll`, {
+                method: 'POST'
+            });
+            displayResult('gameActionResult', result);
+        }
+
+        async function testMakeMove() {
+            const gameId = document.getElementById('gameId').value;
+            const from = parseInt(document.getElementById('fromPoint').value);
+            const to = parseInt(document.getElementById('toPoint').value);
+
+            if (!gameId) {
+                displayResult('makeMoveResult', { status: 400, data: { error: 'No game ID provided' } });
+                return;
+            }
+
+            const result = await makeRequest(`/api/games/${gameId}/move`, {
+                method: 'POST',
+                body: JSON.stringify({ from, to })
+            });
+            displayResult('makeMoveResult', result);
+        }
+
+        function logout() {
+            authToken = null;
+            localStorage.removeItem('authToken');
+            updateAuthStatus();
+            alert('Logged out successfully');
+        }
+
+        // Initialize
+        updateAuthStatus();
+    </script>
+</body>
+</html>

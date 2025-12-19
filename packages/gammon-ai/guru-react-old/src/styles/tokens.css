@@ -1,0 +1,130 @@
+/* Design Tokens - Classic Backgammon Theme */
+
+:root {
+  /* Wood Board Colors */
+  --color-wood-dark: #3e2723;
+  --color-wood-medium: #5d4037;
+  --color-wood-light: #8d6e63;
+  --color-wood-border: #4e342e;
+
+  /* Playing Surface */
+  --color-felt-green: #1b5e20;
+  --color-felt-dark: #0d3d11;
+
+  /* Point Colors - Classic Burgundy & Cream */
+  --color-point-burgundy: #8b1538;
+  --color-point-cream: #f5e6d3;
+  --color-point-shadow: rgba(0, 0, 0, 0.3);
+
+  /* Checker Colors - Classic Style */
+  --color-checker-white: #fafafa;
+  --color-checker-white-border: #e0e0e0;
+  --color-checker-white-shadow: rgba(0, 0, 0, 0.3);
+
+  --color-checker-black: #212121;
+  --color-checker-black-border: #424242;
+  --color-checker-black-shadow: rgba(255, 255, 255, 0.1);
+
+  /* UI Colors */
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #bdbdbd;
+  --color-text-muted: #757575;
+  --color-text-dark: #212121;
+
+  --color-success: #4caf50;
+  --color-warning: #ff9800;
+  --color-error: #f44336;
+  --color-info: #2196f3;
+
+  /* Backgrounds */
+  --color-bg-primary: #1a1a1a;
+  --color-bg-secondary: #2a2a2a;
+  --color-bg-elevated: #3a3a3a;
+
+  /* Borders */
+  --color-border-primary: #4e342e;
+  --color-border-secondary: rgba(245, 230, 211, 0.2);
+  --color-border-gold: #d4af37;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  /* Typography */
+  --font-family-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-family-serif: Georgia, 'Times New Roman', serif;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.5rem;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-checker: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-index */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-popover: 500;
+  --z-tooltip: 600;
+
+  /* Game Board Specific */
+  --checker-size: 2.8rem;
+  --point-width: 4rem;
+  --point-height: 12rem;
+  --board-padding: var(--spacing-xl);
+  --bar-width: 2.5rem;
+}
+
+/* Utility Classes */
+.wood-texture {
+  background: linear-gradient(135deg, var(--color-wood-medium) 0%, var(--color-wood-dark) 100%);
+  box-shadow: var(--shadow-inner);
+}
+
+.felt-texture {
+  background: linear-gradient(180deg, var(--color-felt-green) 0%, var(--color-felt-dark) 100%);
+}
+
+.gold-accent {
+  color: var(--color-border-gold);
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}

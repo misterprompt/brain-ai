@@ -1,0 +1,104 @@
+/* Dice Styles - Premium Realistic */
+
+.dice-container {
+    display: flex;
+    gap: var(--spacing-lg);
+    align-items: center;
+    perspective: 800px;
+}
+
+.die {
+    width: 3.8rem;
+    height: 3.8rem;
+    /* Acrylic/Resin Look */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 240, 240, 0.8) 50%, rgba(220, 220, 220, 0.9) 100%);
+    border-radius: 12px;
+    box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.2),
+        inset 0 2px 3px rgba(255, 255, 255, 1),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 6px;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    position: relative;
+}
+
+/* Glassy edge effect */
+.die::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+}
+
+.die:hover {
+    transform: translateY(-5px) rotateX(10deg) rotateY(10deg);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+}
+
+.die-face {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2px;
+}
+
+.die-pip {
+    background: radial-gradient(circle at 30% 30%, #333, #000);
+    border-radius: 50%;
+    width: 0.65rem;
+    height: 0.65rem;
+    place-self: center;
+    /* Engraved effect */
+    box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.8),
+        0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Red Dice Variant (Optional, for future use) */
+.die.red {
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.9) 0%, rgba(180, 0, 0, 0.8) 100%);
+}
+
+.die.red .die-pip {
+    background: radial-gradient(circle at 30% 30%, #fff, #eee);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Dice roll animation - 3D Tumble */
+@keyframes diceRoll {
+    0% {
+        transform: rotate3d(1, 1, 1, 0deg) translateY(0);
+    }
+
+    25% {
+        transform: rotate3d(1, 2, 0, 120deg) translateY(-20px);
+    }
+
+    50% {
+        transform: rotate3d(0, 1, 1, 240deg) translateY(0);
+    }
+
+    75% {
+        transform: rotate3d(1, 0, 2, 300deg) translateY(-10px);
+    }
+
+    100% {
+        transform: rotate3d(1, 1, 1, 360deg) translateY(0);
+    }
+}
+
+.die-rolling {
+    animation: diceRoll 0.6s ease-in-out infinite;
+}

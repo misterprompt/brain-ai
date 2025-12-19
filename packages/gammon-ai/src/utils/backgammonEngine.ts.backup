@@ -1,0 +1,359 @@
+/**
+ * Backgammon Game Engine
+ * Handles all game logic, move validation, and rule enforcement
+ */
+
+export interface GameState {
+  id: string;
+  whitePlayer?: any;
+  blackPlayer?: any;
+  boardState: number[];
+  currentPlayer: string;
+  dice: number[];
+  usedDice: number[];
+  whiteScore: number;
+  blackScore: number;
+  status: string;
+  gameMode: string;
+  winner?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Move {
+  from: number; // 0-25 (0=bar, 1-24=points, 25=off-board)
+  to: number;   // 0-25
+  player: 'WHITE' | 'BLACK';
+}
+
+export interface MoveResult {
+  success: boolean;
+  message: string;
+  gameState?: GameState;
+  validMoves?: Move[];
+}
+
+export class BackgammonEngine {
+  private static readonly BOARD_POINTS = 24;
+  private static readonly BAR_POSITION = 0;
+  private static readonly WHITE_HOME = 25;
+  private static readonly BLACK_HOME = 26;
+
+  /**
+   * Validate if a move is legal according to backgammon rules
+   */
+  static validateMove(gameState: GameState, move: Move): MoveResult {
+    const { from, to, player } = move;
+
+    // Check if it's the player's turn
+    if (gameState.currentPlayer !== player) {
+      return { success: false, message: 'Not your turn' };
+    }
+
+    // Check if player has pieces on the bar that must be moved first
+    if (this.hasPiecesOnBar(gameState, player) && from !== this.BAR_POSITION) {
+      return { success: false, message: 'Must move pieces off the bar first' };
+    }
+
+    // Check if the move uses available dice
+    const diceValue = Math.abs(to - from);
+    if (!gameState.dice.includes(diceValue) || gameState.usedDice.includes(diceValue)) {
+      return { success: false, message: `Invalid move: ${diceValue} is not available on dice` };
+    }
+
+    // Check if source point has player's pieces
+    const sourcePieces = this.getPiecesOnPoint(gameState, from, player);
+    if (sourcePieces === 0) {
+      return { success: false, message: 'No pieces on source point' };
+    }
+
+    // Check bearing off rules
+    if (this.isBearingOffMove(from, to, player)) {
+      if (!this.canBearOff(gameState, player)) {
+        return { success: false, message: 'Cannot bear off pieces yet' };
+      }
+      if (!this.isValidBearingOff(gameState, from, to, player)) {
+        return { success: false, message: 'Invalid bearing off move' };
+      }
+    } else {
+      // Check if destination is valid
+      if (to < 1 || to > this.BOARD_POINTS) {
+        return { success: false, message: 'Invalid destination point' };
+      }
+
+      // Check if destination has opponent's pieces
+      const opponentPieces = this.getOpponentPiecesOnPoint(gameState, to, player);
+      if (opponentPieces > 1) {
+        return { success: false, message: 'Cannot move to point occupied by multiple opponent pieces' };
+      }
+
+      // Check move direction
+      if (!this.isValidMoveDirection(from, to, player)) {
+        return { success: false, message: 'Invalid move direction' };
+      }
+    }
+
+    return { success: true, message: 'Move is valid' };
+  }
+
+  /**
+   * Execute a validated move and update game state
+   */
+  static executeMove(gameState: GameState, move: Move): GameState {
+    // Create a new game state object with proper typing
+    const newState: GameState = {
+      ...gameState,
+      boardState: [...gameState.boardState],
+      dice: [...gameState.dice],
+      usedDice: [...gameState.usedDice],
+      updatedAt: new Date()
+    };
+
+    // Update board state
+    const boardIndex = (from - 1) * 2 + (player === 'WHITE' ? 0 : 1);
+    if (boardIndex >= 0 && boardIndex < newState.boardState.length) {
+      newState.boardState[boardIndex] = Math.max(0, newState.boardState[boardIndex] - 1);
+    }
+
+    // Handle bearing off
+    if (this.isBearingOffMove(from, to, player)) {
+      // Piece is borne off - no destination update needed
+    } else {
+      // Handle hit/capture
+      const opponentPieces = this.getOpponentPiecesOnPoint(gameState, to, player);
+      if (opponentPieces === 1) {
+        // Hit opponent's piece to the bar
+        const opponentBarIndex = player === 'WHITE' ? 1 : 0; // Black bar for white player, white bar for black player
+        newState.boardState[opponentBarIndex] = (newState.boardState[opponentBarIndex] || 0) + 1;
+
+        // Remove opponent's piece from destination
+        const destIndex = (to - 1) * 2 + (player === 'WHITE' ? 1 : 0);
+        newState.boardState[destIndex] = Math.max(0, newState.boardState[destIndex] - 1);
+      }
+
+      // Add piece to destination
+      const destIndex = (to - 1) * 2 + (player === 'WHITE' ? 0 : 1);
+      newState.boardState[destIndex] = (newState.boardState[destIndex] || 0) + 1;
+    }
+
+    // Mark dice as used
+    const diceValue = Math.abs(to - from);
+    newState.usedDice = [...newState.usedDice, diceValue];
+
+    // Check if all dice are used
+    if (newState.usedDice.length === newState.dice.length) {
+      // Switch turns
+      newState.currentPlayer = newState.currentPlayer === 'WHITE' ? 'BLACK' : 'WHITE';
+      newState.dice = [];
+      newState.usedDice = [];
+    }
+
+    // Check for game completion
+    if (this.isGameComplete(newState)) {
+      newState.status = 'COMPLETED';
+      const winner = this.getWinner(newState);
+      if (winner) {
+        newState.winner = winner;
+        if (winner === 'WHITE') {
+          newState.whiteScore++;
+        } else {
+          newState.blackScore++;
+        }
+      }
+    }
+
+    return newState;
+  }
+
+  /**
+   * Get all valid moves for current player
+   */
+  static getValidMoves(gameState: GameState): Move[] {
+    const moves: Move[] = [];
+    const player = gameState.currentPlayer;
+
+    // If no dice rolled, no moves available
+    if (gameState.dice.length === 0) return moves;
+
+    const availableDice = gameState.dice.filter(die => !gameState.usedDice.includes(die));
+
+    // Check all points for possible moves
+    for (let from = 0; from <= this.BOARD_POINTS; from++) {
+      if (this.getPiecesOnPoint(gameState, from, player) > 0) {
+        for (const die of availableDice) {
+          const to = player === 'WHITE' ? from + die : from - die;
+
+          // Try normal move
+          if (to >= 1 && to <= this.BOARD_POINTS) {
+            const move: Move = { from, to, player };
+            if (this.validateMove(gameState, move).success) {
+              moves.push(move);
+            }
+          }
+
+          // Try bearing off
+          const bearingOffPoint = player === 'WHITE' ? this.BOARD_POINTS + 1 : 0;
+          if (to >= bearingOffPoint) {
+            const bearingOffMove: Move = { from, to: bearingOffPoint, player };
+            if (this.validateMove(gameState, bearingOffMove).success) {
+              moves.push(bearingOffMove);
+            }
+          }
+        }
+      }
+    }
+
+    return moves;
+  }
+
+  /**
+   * Roll dice for current player
+   */
+  static rollDice(): number[] {
+    const die1 = Math.floor(Math.random() * 6) + 1;
+    const die2 = Math.floor(Math.random() * 6) + 1;
+
+    // Doubles give 4 of the same number
+    if (die1 === die2) {
+      return [die1, die1, die1, die1];
+    }
+
+    return [die1, die2];
+  }
+
+  /**
+   * Check if game is complete
+   */
+  static isGameComplete(gameState: GameState): boolean {
+    const whiteTotal = gameState.boardState
+      .filter((_, index) => index % 2 === 0) // White pieces
+      .reduce((sum, count) => sum + count, 0);
+
+    const blackTotal = gameState.boardState
+      .filter((_, index) => index % 2 === 1) // Black pieces
+      .reduce((sum, count) => sum + count, 0);
+
+    return whiteTotal === 0 || blackTotal === 0;
+  }
+
+  /**
+   * Get the winner of a completed game
+   */
+  static getWinner(gameState: GameState): string | null {
+    const whiteTotal = gameState.boardState
+      .filter((_, index) => index % 2 === 0)
+      .reduce((sum, count) => sum + count, 0);
+
+    const blackTotal = gameState.boardState
+      .filter((_, index) => index % 2 === 1)
+      .reduce((sum, count) => sum + count, 0);
+
+    if (whiteTotal === 0) return 'WHITE';
+    if (blackTotal === 0) return 'BLACK';
+    return null;
+  }
+
+  // Helper methods
+  private static hasPiecesOnBar(gameState: GameState, player: string): boolean {
+    const barIndex = player === 'WHITE' ? 0 : 1;
+    return (gameState.boardState[barIndex] || 0) > 0;
+  }
+
+  private static getPiecesOnPoint(gameState: GameState, point: number, player: string): number {
+    if (point === 0) { // Bar
+      return player === 'WHITE' ? (gameState.boardState[0] || 0) : (gameState.boardState[1] || 0);
+    }
+
+    const index = (point - 1) * 2 + (player === 'WHITE' ? 0 : 1);
+    return gameState.boardState[index] || 0;
+  }
+
+  private static getOpponentPiecesOnPoint(gameState: GameState, point: number, player: string): number {
+    const opponent = player === 'WHITE' ? 'BLACK' : 'WHITE';
+    return this.getPiecesOnPoint(gameState, point, opponent);
+  }
+
+  private static isBearingOffMove(from: number, to: number, player: string): boolean {
+    if (player === 'WHITE') {
+      return to > this.BOARD_POINTS;
+    } else {
+      return to < 1;
+    }
+  }
+
+  private static canBearOff(gameState: GameState, player: string): boolean {
+    // Check if all pieces are in home board
+    const homeStart = player === 'WHITE' ? 19 : 1;
+    const homeEnd = player === 'WHITE' ? 24 : 6;
+
+    for (let point = 1; point <= this.BOARD_POINTS; point++) {
+      const pieces = this.getPiecesOnPoint(gameState, point, player);
+      if (pieces > 0 && (point < homeStart || point > homeEnd)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private static isValidBearingOff(gameState: GameState, from: number, to: number, player: string): boolean {
+    const diceValue = Math.abs(to - from);
+
+    if (player === 'WHITE') {
+      // White bears off from high points (19-24)
+      if (from < 19) return false;
+
+      // Must use exact dice value or higher if no exact match available
+      const exactDiceAvailable = gameState.dice.includes(from - 24);
+      if (exactDiceAvailable && diceValue !== from - 24) return false;
+
+      return diceValue >= (25 - from);
+    } else {
+      // Black bears off from low points (1-6)
+      if (from > 6) return false;
+
+      // Must use exact dice value or higher if no exact match available
+      const exactDiceAvailable = gameState.dice.includes(from);
+      if (exactDiceAvailable && diceValue !== from) return false;
+
+      return diceValue >= from;
+    }
+  }
+
+  private static isValidMoveDirection(from: number, to: number, player: string): boolean {
+    if (player === 'WHITE') {
+      return to > from; // White moves forward (increasing point numbers)
+    } else {
+      return to < from; // Black moves forward (decreasing point numbers)
+    }
+  }
+
+  /**
+   * Initialize standard backgammon starting position
+   */
+  static getInitialBoardState(): number[] {
+    const board = new Array(48).fill(0); // 24 points × 2 players
+
+    // White pieces (standard starting position)
+    // Point 1: 2 white
+    board[0] = 2;
+    // Point 12: 5 white
+    board[22] = 5;
+    // Point 17: 3 white
+    board[32] = 3;
+    // Point 19: 5 white
+    board[36] = 5;
+
+    // Black pieces (standard starting position)
+    // Point 24: 2 black
+    board[47] = 2;
+    // Point 13: 5 black
+    board[25] = 5;
+    // Point 8: 3 black
+    board[15] = 3;
+    // Point 6: 5 black
+    board[11] = 5;
+
+    return board;
+  }
+}

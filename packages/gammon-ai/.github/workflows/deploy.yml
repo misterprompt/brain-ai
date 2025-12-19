@@ -1,0 +1,34 @@
+name: Deploy to Production
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: render_api_key
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Deploy backend to Render
+      - name: Deploy to Render
+        uses: render-actions/deploy@v1
+        with:
+          apiKey: ${{ secrets.RENDER_API_KEY }}
+          serviceId: srv-d4941pkhg0os738k189g
+
+      # Build frontend (guru-react)
+      - name: Install and build frontend
+        working-directory: ./guru-react
+        run: |
+          npm install
+          npm run build
+
+      # Deploy frontend to Netlify
+      - name: Deploy to Netlify
+        uses: netlify/actions/cli@master
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 8665e35c-313f-4cef-b164-9bc0f16057ab
+        with:
+          args: deploy --dir=guru-react/dist --prod

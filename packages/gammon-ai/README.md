@@ -1,106 +1,53 @@
-# 🎲 Gammon AI
+# 🎲 Gammon AI (GuruGammon V2)
 
-> Système autonome de Backgammon avec IA
+> Système avancé de Backgammon avec IA, Dashboard temps réel et Frontend React.
 
 ## 🚀 Status
 
-Le système tourne actuellement en mode autonome :
+Déployé sur Fly.io : **https://gurugammon-ai-bot.fly.dev/**
 
-- **Process autonome** : PID 24284
-- **API Monitoring** : http://localhost:8080
+## 🏗️ Architecture
+
+Ceci est la version V2 complète (Node.js + React), remplaçant l'ancien prototype Python.
+
+- **Backend** : Node.js, Express, TypeScript, Prisma (PostgreSQL)
+- **Frontend** : React, Vite, TailwindCSS (dans `guru-react/`)
+- **IA** : Intégration GNUBG et IA neuronale custom
+- **Database** : PostgreSQL (via Supabase ou Fly Postgres)
 
 ## 📁 Structure
 
 ```
 gammon-ai/
-├── bot/
-│   ├── __init__.py
-│   ├── engine.py              # Moteur de jeu complet
-│   ├── strategy.py            # Stratégie IA
-│   ├── autonomous_system.py   # Système autonome 5h
-│   └── api.py                 # API de monitoring
-├── frontend/                  # Interface React (à venir)
-├── Dockerfile
-├── fly.toml
-└── requirements.txt
+├── src/                # Backend Source Code
+│   ├── routes/         # API Routes
+│   ├── services/       # Game Logic & AI Services
+│   └── websocket/      # Real-time game updates
+├── guru-react/         # Frontend React Application
+├── prisma/             # Database Schema
+├── Dockerfile          # Multi-stage build (Front + Back)
+└── fly.toml            # Deployment Configuration
 ```
 
-## 🧠 Composants
+## 🛠️ Développement
 
-### 1. Engine (`engine.py`)
-Implémentation complète des règles du Backgammon :
-- Génération de tous les coups légaux
-- Application des mouvements
-- Détection fin de partie, gammon, backgammon
-- Calcul du pip count
-
-### 2. Strategy (`strategy.py`)
-Stratégie d'évaluation :
-- Évaluation de position multi-facteurs
-- Niveaux : beginner, intermediate, expert
-- Décisions de doubling cube
-
-### 3. Autonomous System (`autonomous_system.py`)
-Système qui tourne en autonome :
-- IA vs IA pendant 5 heures
-- Logging des statistiques
-- Sauvegarde des résultats en JSON
-
-### 4. API (`api.py`)
-Dashboard de monitoring :
-- Statistiques en temps réel
-- Graphiques de progression
-- Historique des parties
-
-## 🎮 Utilisation
-
-### Lancer le système autonome
+### Backend
 ```bash
-python bot/autonomous_system.py
+npm install
+npm run dev
 ```
 
-### Lancer l'API de monitoring
+### Frontend
 ```bash
-uvicorn bot.api:app --host 0.0.0.0 --port 8080
+cd guru-react
+npm install
+npm run dev
 ```
 
-### Lancer les deux
-```bash
-python bot/autonomous_system.py &
-uvicorn bot.api:app --port 8080
-```
+## 📦 Déploiement
 
-## 📊 Monitoring
-
-Accède au dashboard : http://localhost:8080
-
-### API Endpoints
-- `GET /` - Dashboard HTML
-- `GET /api/stats` - Statistiques JSON
-- `GET /api/games` - Liste des parties
-- `GET /api/health` - Health check
-
-## 🚀 Déploiement Fly.io
+Le déploiement est automatisé via Fly.io. Le Dockerfile construit à la fois le frontend et le backend.
 
 ```bash
-cd packages/gammon-ai
-flyctl launch
 flyctl deploy
 ```
-
-## 📈 Performances attendues
-
-| Métrique | Valeur |
-|----------|--------|
-| Parties / heure | ~200-500 |
-| Coups / seconde | ~50-100 |
-| Mémoire | < 500 MB |
-| CPU | < 50% |
-
-## 🔧 Configuration
-
-Voir `autonomous_system.py` pour modifier :
-- `run_duration_hours` : Durée d'exécution
-- `move_delay_seconds` : Délai entre coups
-- `difficulty` : Niveau IA
-- `log_every_n_games` : Fréquence logs

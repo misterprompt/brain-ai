@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: gurugammon-staging
+    env: node
+    plan: free
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: node dist/server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.1

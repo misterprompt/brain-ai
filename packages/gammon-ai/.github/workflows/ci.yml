@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.11.1
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+          cache: 'npm'
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: ./guru-react
+        run: npm ci
+
+      - name: Lint backend
+        run: npm run lint
+
+      - name: Test backend
+        run: npm test
+
+      - name: Lint frontend
+        working-directory: ./guru-react
+        run: npm run lint
+
+      - name: Install Playwright browsers
+        working-directory: ./guru-react
+        run: npx playwright install --with-deps
+
+      - name: Test frontend E2E
+        working-directory: ./guru-react
+        run: npm run test:e2e
+
+      - name: Build backend
+        run: npm run build
+
+      - name: Build frontend
+        working-directory: ./guru-react
+        run: npm run build

@@ -1,0 +1,224 @@
+/* Point Styles - Premium Inlaid */
+
+:root {
+    --point-color-light: #e0cda8;
+    /* Cream/Ivory */
+    --point-color-dark: #8a3a3a;
+    /* Deep Burgundy */
+    --point-color-light-shadow: #b0a080;
+    --point-color-dark-shadow: #5a2020;
+}
+
+.point {
+    position: relative;
+    width: var(--point-width);
+    height: var(--point-height);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 1;
+}
+
+.point-up {
+    justify-content: flex-end;
+}
+
+.point-down {
+    justify-content: flex-start;
+}
+
+.point:hover {
+    filter: brightness(1.15);
+    z-index: 5;
+}
+
+/* Point Triangle - Inlaid Style using Clip-Path */
+.point-triangle {
+    position: absolute;
+    width: 100%;
+    height: 85%;
+    /* Slightly shorter than container */
+    left: 0;
+    /* Inlaid shadow effect */
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    transition: all 0.2s ease;
+}
+
+.point-up .point-triangle {
+    bottom: 0;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.point-down .point-triangle {
+    top: 0;
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+}
+
+/* Point Colors & Textures */
+.point-light .point-triangle {
+    background: linear-gradient(to right, var(--point-color-light) 0%, #f5e6c8 50%, var(--point-color-light) 100%);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    /* Note: box-shadow doesn't work well with clip-path, using gradient for depth */
+}
+
+.point-dark .point-triangle {
+    background: linear-gradient(to right, var(--point-color-dark) 0%, #a64d4d 50%, var(--point-color-dark) 100%);
+}
+
+/* Point Number - Engraved Brass Plate Style */
+.point-number {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #3e2723;
+    background: linear-gradient(135deg, #ffd700, #b5a642);
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0.6;
+    transition: all 0.2s;
+    pointer-events: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    font-family: 'Cinzel', serif;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    z-index: 2;
+}
+
+.point-up .point-number {
+    bottom: -25px;
+}
+
+.point-down .point-number {
+    top: -25px;
+}
+
+.point:hover .point-number {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.1);
+}
+
+/* Checkers Stack */
+.checkers-stack {
+    position: absolute;
+    display: flex;
+    gap: -60%;
+    /* Overlap checkers significantly for 3D stack effect */
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    width: 100%;
+    pointer-events: none;
+    /* Let clicks pass to point */
+}
+
+.point-up .checkers-stack {
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: column-reverse;
+}
+
+.point-down .checkers-stack {
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: column;
+}
+
+/* Checker Count Badge */
+.checker-count {
+    min-width: 1.8rem;
+    height: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 800;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    margin: 2px 0;
+    font-family: sans-serif;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    z-index: 20;
+}
+
+.checker-count-white {
+    background: linear-gradient(135deg, #fff, #ddd);
+    color: #333;
+}
+
+.checker-count-black {
+    background: linear-gradient(135deg, #444, #222);
+    color: #fff;
+}
+
+/* Valid Move Indicator - Glowing Halo */
+.point-valid .point-triangle {
+    filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.8)) brightness(1.1);
+    z-index: 0;
+}
+
+.point-valid::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(74, 222, 128, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: validPulse 2s infinite;
+    pointer-events: none;
+}
+
+@keyframes validPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.3;
+    }
+}
+
+/* Selected Point Highlight */
+.point-selected .point-triangle {
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) brightness(1.2);
+}
+
+.point-selected::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.4);
+    border-radius: 4px;
+    pointer-events: none;
+    animation: selectPulse 1.5s infinite;
+}
+
+@keyframes selectPulse {
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}

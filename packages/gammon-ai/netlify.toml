@@ -1,0 +1,69 @@
+[build]
+  publish = "guru-react/dist"
+  command = "cd guru-react && npm install --include=dev && npm run build"
+
+# Global CDN optimization
+[[edge_functions]]
+  function = "global-optimizer"
+  path = "/api/*"
+
+# Region-specific caching
+[[headers]]
+  for = "/api/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, s-maxage=7200"
+    CDN-Cache-Control = "max-age=3600"
+    Cloudflare-CDN-Cache-Control = "max-age=3600"
+    Vary = "Accept-Encoding"
+
+[[headers]]
+  for = "/api/games/*"
+  [headers.values]
+    Cache-Control = "private, max-age=30"
+    CDN-Cache-Control = "max-age=60"
+
+# API redirects with global optimization
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  conditions = {Country = ["!US"], Cache = {max_age = 300}}
+
+[[redirects]]
+  from = "/api/claude/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  conditions = {Country = ["US"], Cache = {max_age = 60}}
+
+[[redirects]]
+  from = "/api/images/*"
+  to = "/.netlify/functions/images"
+  status = 200
+
+[[redirects]]
+  from = "/api/learn/*"
+  to = "/.netlify/functions/learn"
+  status = 200
+
+# WebSocket support (Note: Limited on Netlify - works in development/server mode)
+[[redirects]]
+  from = "/ws"
+  to = "/.netlify/functions/ws"
+  status = 200
+  force = true
+
+[build.environment]
+  NODE_VERSION = "20.19.0"
+  # Global environment optimizations
+  NETLIFY_USE_EDGE_FUNCTIONS = "true"
+  NETLIFY_EDGE_FUNCTIONS_REGION = "global"
+  VITE_API_BASE_URL = "https://gurugammon.onrender.com"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, X-Client-Region"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    X-Global-CDN = "Netlify"
+    X-Performance-Optimized = "true"

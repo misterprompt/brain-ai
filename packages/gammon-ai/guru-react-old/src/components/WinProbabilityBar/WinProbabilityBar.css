@@ -1,0 +1,80 @@
+.winprob-container {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  backdrop-filter: blur(4px);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.winprob-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+  color: #e5e7eb;
+}
+
+.winprob-title {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.winprob-status {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.winprob-status-error {
+  color: #f97316;
+}
+
+.winprob-bar {
+  position: relative;
+  width: 100%;
+  height: 16px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: linear-gradient(90deg, #0f172a 0%, #020617 100%);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.winprob-segment {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  transition: width 0.25s ease-out;
+}
+
+.winprob-segment-white {
+  justify-content: flex-start;
+  background: linear-gradient(90deg, #e5e7eb 0%, #f9fafb 100%);
+  color: #0f172a;
+}
+
+.winprob-segment-black {
+  justify-content: flex-end;
+  background: linear-gradient(90deg, #111827 0%, #020617 100%);
+  color: #e5e7eb;
+}
+
+.winprob-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0 0.4rem;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.winprob-label-left {
+  margin-left: 4px;
+}
+
+.winprob-label-right {
+  margin-right: 4px;
+}
