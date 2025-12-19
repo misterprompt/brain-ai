@@ -53,10 +53,12 @@ Génération de vidéos IA style HeyGen.
 - Edge-TTS pour voix
 
 ### 🎲 Gammon AI (`packages/gammon-ai/`)
-Jeu de Backgammon avec IA autonome.
-- Moteur de jeu complet
-- IA vs IA training
-- Dashboard temps réel
+GuruGammon V2 - Système avancé de Backgammon.
+- **Backend** : Node.js, Express, TypeScript
+- **Frontend** : React, Vite, TailwindCSS
+- **IA** : GNUBG Integration
+- **Database** : PostgreSQL (Prisma)
+- **Status** : Code source V2 migré, déploiement en cours.
 
 ### 📈 Trading Bot (`packages/trading-bot/`)
 Bot de trading NASDAQ avec Alpaca.
