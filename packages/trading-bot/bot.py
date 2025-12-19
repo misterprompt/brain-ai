@@ -15,17 +15,52 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 from enum import Enum
 import httpx
+from threading import Thread
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import json
 
 # Configuration logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler('trading_bot.log'),
-        logging.StreamHandler()
-    ]
+    format='%(asctime)s | %(levelname)-7s | %(message)s',
+    handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger("TradingBot")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# HEALTH CHECK SERVER (pour Fly.io)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class HealthHandler(BaseHTTPRequestHandler):
+    """Handler pour le health check."""
+    
+    def do_GET(self):
+        if self.path == '/health' or self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            status = {
+                "status": "healthy",
+                "bot": "trading-bot-nasdaq",
+                "mode": "paper" if "paper" in os.getenv("ALPACA_BASE_URL", "") else "live",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            self.wfile.write(json.dumps(status).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        pass  # Silence les logs HTTP
+
+
+def start_health_server():
+    """Démarre le serveur de health check."""
+    port = int(os.getenv("PORT", 8080))
+    server = HTTPServer(('0.0.0.0', port), HealthHandler)
+    logger.info(f"🏥 Health server running on port {port}")
+    server.serve_forever()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -464,6 +499,10 @@ class TradingBot:
 
 async def main():
     """Point d'entrée."""
+    # Démarrer le serveur health check en arrière-plan
+    health_thread = Thread(target=start_health_server, daemon=True)
+    health_thread.start()
+    
     config = TradingConfig(
         paper_trading=True,  # TOUJOURS commencer en paper!
         strategy="momentum",
