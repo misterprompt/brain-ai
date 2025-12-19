@@ -9,5 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy code
 COPY . .
 
-# Run autonomous system
-CMD ["python", "-m", "bot.autonomous_system"]
+# Make entrypoint executable
+RUN chmod +x entrypoint.sh
+
+# Run via entrypoint script
+CMD ["./entrypoint.sh"]

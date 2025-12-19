@@ -173,6 +173,9 @@ async def root():
             
             <div style="text-align: center; margin: 20px 0;">
                 <span class="status status-running">🟢 SYSTÈME AUTONOME EN COURS</span>
+                <a href="/play" style="display:inline-block; margin-left:15px; text-decoration:none;">
+                    <span class="status" style="background:#ffd700; color:#333;">🎮 JOUER CONTRE L'IA</span>
+                </a>
             </div>
             
             <div class="stats-grid">
@@ -316,6 +319,15 @@ async def health():
     """Health check."""
     return {"status": "ok", "service": "gammon-ai-monitor"}
 
+
+@app.get("/play")
+async def play():
+    """Interface de jeu (frontend)."""
+    html_path = Path(__file__).parent.parent / "frontend" / "index.html"
+    if html_path.exists():
+        with open(html_path, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>Frontend introuvable.</h1>")
 
 if __name__ == "__main__":
     import uvicorn

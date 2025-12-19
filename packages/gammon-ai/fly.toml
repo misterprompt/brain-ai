@@ -1,7 +1,7 @@
 # Gammon AI Bot - Fly.io Configuration
 # Autonomous system that runs for 5 hours
 
-app = 'gammon-ai-autonomous'
+app = 'gurugammon-ai-bot'
 primary_region = 'cdg'
 
 [build]
